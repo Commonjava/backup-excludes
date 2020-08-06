@@ -41,7 +41,7 @@ def remove_nobackup(dir):
         print('Cannot delete the file {} as it does not exists.'.format(nobackup_path))
 
 '''
-    Query the remote repos from Indy
+    [Deprecated] Query the remote repos from Indy
 '''
 def query_remote_repo():
     indy_instance = os.environ.get('INDY_HOST')
@@ -68,23 +68,28 @@ def query_remote_repo():
 '''
     Handle the remote repo 
 '''
-def handle_remote_repo(repo):
+def handle_remote_repo():
+    for root, dirs, files in os.walk(root_dir):
+        for repo_dir_name in dirs:
+            if repo_dir_name.startswith('remote-'):
+                print(os.path.join(root,repo_dir_name))
 
-    repo_dir = "{}/remote-{}".format(root_dir, repo['name'])
-    print('Remote repo dir: {}'.format(repo_dir))
+                repo_dir = os.path.join(root,repo_dir_name)
+                print('Remote repo dir: {}'.format(repo_dir))
 
-    '''
-        The following remote repos are still needed in backup, like MRRC and repository.jboss.org
-    '''
-    listOfExcludeRepos = ['mrrc','mrrc-ga', 'mrrc-ga-rh', 'release.jboss.org', 'repository.jboss.org']
+                repo_name = repo_dir_name[7:]
+                '''
+                    The following remote repos are still needed in backup, like MRRC and repository.jboss.org
+                '''
+                listOfExcludeRepos = ['mrrc','mrrc-ga', 'mrrc-ga-rh', 'release.jboss.org', 'repository.jboss.org']
 
-    '''
-        Check if the repo is NOT in the listOfExcludeRepos
-    '''
-    if repo['name'] in listOfExcludeRepos:
-        remove_nobackup(repo_dir)
-    else:
-        create_nobackup(repo_dir)
+                '''
+                    Check if the repo is NOT in the listOfExcludeRepos
+                '''
+                if repo_name in listOfExcludeRepos:
+                    remove_nobackup(repo_dir)
+                else:
+                    create_nobackup(repo_dir)
         
 
 '''
@@ -153,6 +158,9 @@ def handle_local_remote_repo():
 
         f.close()
 
+'''
+    [Deprecated]
+'''
 def getAccessToken():
     user = input('Username : ')
     passwd = getpass.getpass('Password : ')
@@ -199,10 +207,7 @@ def main(argv):
     env         = args.env
     
     if store_type == 'remote':
-        if(input_file is not None):
-            handle_local_remote_repo()
-        else:
-            query_remote_repo()
+        handle_remote_repo()
     elif store_type == 'temporary':
         if(input_file is not None):
             handle_local_temporary_build()
