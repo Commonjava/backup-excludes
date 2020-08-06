@@ -23,8 +23,7 @@ the temporary builds and to access Indy service to grab the remote repositories.
 
 ## Environment Variables (TODO)
 
-* `INDY_HOST`: The hostname of Indy service 
 * `PNC_HOST` : The hostname of PNC service
-* `SSO_HOST` : The hostname of SSO service
+* `REPO_DIR` : The directory of the repository
 
 
