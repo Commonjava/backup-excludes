@@ -19,7 +19,7 @@ FileSet {
 
 The script aims to identify the temporary builds and remote repositories that do not need to be backed up,
 and create the file .nobackup in the directories.  In order to do that, we need to query PNC service to get
-the temporary builds and to access Indy service to grab the remote repositories. 
+the temporary builds and to access Indy volume to go through the remote repositories. 
 
 ## Environment Variables (TODO)
 
