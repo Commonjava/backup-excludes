@@ -3,7 +3,6 @@ import os
 import sys, getopt
 import json
 import getpass  
-import argparse
 
 def handle_call(url, headers=None):
     resp = None
@@ -41,31 +40,6 @@ def remove_nobackup(dir):
         print('Cannot delete the file {} as it does not exists.'.format(nobackup_path))
 
 '''
-    [Deprecated] Query the remote repos from Indy
-'''
-def query_remote_repo():
-    indy_instance = os.environ.get('INDY_HOST')
-
-    print('Indy instance: {}'.format(indy_instance))
-
-    indy_url = 'http://{}/api/admin/remote'.format(indy_instance)
-    indy_token = getAccessToken()
-    
-    indy_data = handle_call(indy_url, {"Authorization":"Bearer " + indy_token})
-
-    if (len(output_file)!=0):
-        f = open(output_file,"a+")
-
-    for repo in indy_data['items']:
-        if f is None:
-            handle_remote_repo(repo)
-        else:
-            f.write(repo['name'] + '\r\n')
-
-    if f is None:
-        f.close()
-
-'''
     Handle the remote repo 
 '''
 def handle_remote_repo():
@@ -91,11 +65,10 @@ def handle_remote_repo():
                 else:
                     create_nobackup(repo_dir)
         
-
 '''
-    Query the temporary builds from PNC
+    Handle the temporary builds
 '''
-def query_temporary_build():
+def handle_temporary_build():
     pnc_instance = os.environ.get('PNC_HOST')
 
     print('PNC instance: {}'.format(pnc_instance))
@@ -104,59 +77,23 @@ def query_temporary_build():
 
     pnc_data = handle_call(pnc_url.format(pnc_instance,0))
 
-    if (len(output_file)!=0):
-        f = open(output_file,"w+")
-
     print('Total pages: {}'.format(pnc_data['totalPages']))
-    handle_builds(f, pnc_data['content'])
+    handle_builds(pnc_data['content'])
 
     pages = pnc_data['totalPages']
-
     for page in range(1, pages):
         print('Request page: {}/{}'.format(page, pages))
         pnc_data = handle_call(pnc_url.format(pnc_instance,page))
-        handle_builds(f, pnc_data['content'])
+        handle_builds(pnc_data['content'])
 
-    if f is not None:
-        f.close()
-
-'''
-    Handle the temporary build 
-'''
 def handle_pnc_temp_build(build):
     store_dir = '{}/hosted-build-{}'.format(root_dir, build['id'])
     print('Hosted temporary dir: {}'.format(store_dir))
     create_nobackup(store_dir)  
 
-def handle_builds(f, builds):
-    
+def handle_builds(builds):
     for pnc_build in builds:
-        if f is None:
-            handle_pnc_temp_build(pnc_build)
-        else:
-            f.write(str(pnc_build['id']) + '\r\n')
-
-'''
-    Load the temporary builds from the local file
-'''
-def handle_local_temporary_build():
-    if os.path.exists(input_file):
-        f = open(input_file, 'r')
-        for line in f.readlines():
-            handle_pnc_temp_build(json.loads('{"id":"' + line.strip() + '"}'))
-
-        f.close()
-
-'''
-    Load the remote repo from the local file
-'''
-def handle_local_remote_repo():
-    if os.path.exists(input_file):
-        f = open(input_file, 'r')
-        for line in f.readlines():
-            handle_remote_repo(json.loads('{"name":"' + line.strip() + '"}'))
-
-        f.close()
+        handle_pnc_temp_build(pnc_build)
 
 '''
     [Deprecated]
@@ -176,43 +113,17 @@ def getAccessToken():
     print(resp.json()['access_token'])
     return resp.json()['access_token']
 
-def main(argv):
+def run():
 
     ''' 
         Global variables
     '''
-    global output_file
-    global input_file
     global root_dir
-    global store_type
-    global env
 
-    input_file = None      
-
-    parser = argparse.ArgumentParser()
-    parser.add_argument("-e", "--env", choices=['devel', 'stage', 'prod'])
-    parser.add_argument("-t", "--type", choices=['remote', 'temporary'])
-    parser.add_argument("-d", "--directory", help='the root directory of the store repository, this is required when -i is specified')
-    parser.add_argument("-i", "--inputfile", help='the local file conatining the temporary build id and remote repository name')
-    parser.add_argument("-o", "--outputfile", help='the file that will keep the temporary build IDs from PNC and remote repository name from Indy')
-    args = parser.parse_args()
-
-    print(args)
-    #TODO validate(args)
-
-    store_type  = args.type
-    root_dir    = args.directory
-    input_file  = args.inputfile
-    output_file = args.outputfile
-    env         = args.env
+    root_dir = os.environ.get('REPO_DIR')
     
-    if store_type == 'remote':
-        handle_remote_repo()
-    elif store_type == 'temporary':
-        if(input_file is not None):
-            handle_local_temporary_build()
-        else:
-            query_temporary_build()
+    handle_remote_repo()
+    handle_temporary_build()
 
 if __name__ == '__main__':
-    main(sys.argv[1:])
+    run()
