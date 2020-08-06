@@ -46,8 +46,7 @@ def handle_remote_repo():
     for root, dirs, files in os.walk(root_dir):
         for repo_dir_name in dirs:
             if repo_dir_name.startswith('remote-'):
-                print(os.path.join(root,repo_dir_name))
-
+                
                 repo_dir = os.path.join(root,repo_dir_name)
                 print('Remote repo dir: {}'.format(repo_dir))
 
