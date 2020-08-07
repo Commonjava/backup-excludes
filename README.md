@@ -23,7 +23,8 @@ the temporary builds and to access Indy volume to go through the remote reposito
 
 ## Environment Variables (TODO)
 
-* `PNC_HOST` : The hostname of PNC service
-* `REPO_DIR` : The directory of the repository, e.g.: `/var/lib/backup/indy/storage/maven`
+* `PNC_HOST`   : The hostname of PNC service
+* `PNC_VERSION`: Specify '2.0' if needed, the dafault is 1.x. 
+* `REPO_DIR`   : The directory of the repository, e.g.: `/var/lib/backup/indy/storage/maven`
 
 
