@@ -72,7 +72,14 @@ def handle_temporary_build():
 
     print('PNC instance: {}'.format(pnc_instance))
 
-    pnc_url = 'http://{}/pnc-rest/rest/build-records?q=status==SUCCESS;temporaryBuild==true&pageIndex={}'
+    version = os.environ.get('PNC_VERSION')
+
+    pnc_url = ''
+
+    if version ==  '2.0':
+        pnc_url = 'http://{}/pnc-rest/v2/builds?q=status==SUCCESS;temporaryBuild==true&pageIndex={}'
+    else:
+        pnc_url = 'http://{}/pnc-rest/rest/build-records?q=status==SUCCESS;temporaryBuild==true&pageIndex={}'
 
     pnc_data = handle_call(pnc_url.format(pnc_instance,0))
 
