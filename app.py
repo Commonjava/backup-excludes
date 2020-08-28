@@ -5,6 +5,7 @@ import json
 import getpass  
 
 def handle_call(url, headers=None):
+    print("handle call: {}".format(url))
     resp = None
     try:
         if headers == None:
