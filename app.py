@@ -129,8 +129,8 @@ def run():
 
     root_dir = os.environ.get('REPO_DIR')
     
-    handle_remote_repo()
     handle_temporary_build()
+    handle_remote_repo()
 
 if __name__ == '__main__':
     run()
